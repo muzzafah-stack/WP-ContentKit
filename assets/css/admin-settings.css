@@ -1,0 +1,240 @@
+/**
+ * WP ContentKit - Admin Settings CSS
+ */
+
+.wpck-settings-wrap {
+	max-width: 1050px;
+	margin: 25px auto 40px 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	color: #1e293b;
+}
+
+.wpck-header-banner {
+	background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+	color: #ffffff;
+	padding: 28px 32px;
+	border-radius: 12px;
+	margin-bottom: 24px;
+	box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.15);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.wpck-header-title {
+	margin: 0 0 6px 0;
+	font-size: 24px;
+	font-weight: 700;
+	color: #ffffff;
+	letter-spacing: -0.5px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.wpck-header-title span.badge {
+	font-size: 12px;
+	font-weight: 600;
+	background: rgba(59, 130, 246, 0.25);
+	color: #60a5fa;
+	border: 1px solid rgba(96, 165, 250, 0.3);
+	padding: 2px 8px;
+	border-radius: 6px;
+	letter-spacing: 0;
+}
+
+.wpck-header-tagline {
+	margin: 0;
+	font-size: 14px;
+	color: #94a3b8;
+}
+
+.wpck-header-author a {
+	color: #38bdf8;
+	text-decoration: none;
+	font-size: 13px;
+	font-weight: 500;
+}
+.wpck-header-author a:hover {
+	text-decoration: underline;
+}
+
+/* Nav Tabs */
+.wpck-tabs-nav {
+	display: flex;
+	gap: 8px;
+	border-bottom: 2px solid #e2e8f0;
+	margin-bottom: 24px;
+}
+
+.wpck-tab-btn {
+	background: transparent;
+	border: none;
+	border-bottom: 3px solid transparent;
+	padding: 12px 20px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #64748b;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	margin-bottom: -2px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wpck-tab-btn:hover {
+	color: #1e293b;
+}
+
+.wpck-tab-btn.active {
+	color: #2563eb;
+	border-bottom-color: #2563eb;
+}
+
+/* Tab Panels */
+.wpck-tab-panel {
+	display: none;
+}
+
+.wpck-tab-panel.active {
+	display: block;
+}
+
+/* Cards */
+.wpck-card {
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	padding: 24px 28px;
+	margin-bottom: 24px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.wpck-card-title {
+	font-size: 17px;
+	font-weight: 600;
+	margin: 0 0 16px 0;
+	color: #0f172a;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.wpck-field-row {
+	display: flex;
+	align-items: flex-start;
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #f8fafc;
+}
+.wpck-field-row:last-child {
+	margin-bottom: 0;
+	padding-bottom: 0;
+	border-bottom: none;
+}
+
+.wpck-field-label {
+	width: 260px;
+	flex-shrink: 0;
+	font-weight: 600;
+	font-size: 14px;
+	color: #334155;
+	padding-top: 6px;
+}
+
+.wpck-field-input {
+	flex: 1;
+}
+
+.wpck-field-input input[type="text"],
+.wpck-field-input input[type="number"],
+.wpck-field-input select {
+	width: 100%;
+	max-width: 420px;
+	padding: 8px 12px;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	font-size: 14px;
+	color: #1e293b;
+	transition: border-color 0.2s;
+}
+
+.wpck-field-input input[type="text"]:focus,
+.wpck-field-input input[type="number"]:focus,
+.wpck-field-input select:focus {
+	border-color: #3b82f6;
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.wpck-field-desc {
+	font-size: 12.5px;
+	color: #64748b;
+	margin-top: 6px;
+	line-height: 1.4;
+}
+
+.wpck-checkbox-group {
+	display: flex;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.wpck-checkbox-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13.5px;
+	color: #334155;
+	cursor: pointer;
+}
+
+/* Status Cards in Performance Tab */
+.wpck-status-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 16px;
+	margin-top: 14px;
+}
+
+.wpck-status-box {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 16px;
+}
+
+.wpck-status-box h4 {
+	margin: 0 0 6px 0;
+	font-size: 13px;
+	color: #64748b;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.wpck-status-box .val {
+	font-size: 16px;
+	font-weight: 700;
+	color: #0f172a;
+}
+
+/* Submit Section */
+.wpck-submit-wrap {
+	margin-top: 24px;
+}
+
+.wpck-btn-primary {
+	background: #2563eb !important;
+	color: #ffffff !important;
+	border-color: #2563eb !important;
+	padding: 8px 24px !important;
+	font-size: 14px !important;
+	font-weight: 600 !important;
+	border-radius: 6px !important;
+	cursor: pointer;
+	box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+}
+.wpck-btn-primary:hover {
+	background: #1d4ed8 !important;
+	border-color: #1d4ed8 !important;
+}
