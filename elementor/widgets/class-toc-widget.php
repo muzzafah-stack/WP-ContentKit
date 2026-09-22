@@ -59,7 +59,7 @@ class TOC_Widget extends Widget_Base {
 	 * @return array
 	 */
 	public function get_categories() {
-		return array( 'wp-contentkit', 'general' );
+		return array( 'general', 'theme-elements-single' );
 	}
 
 	/**
@@ -69,6 +69,24 @@ class TOC_Widget extends Widget_Base {
 	 */
 	public function get_keywords() {
 		return array( 'toc', 'table of contents', 'daftar isi', 'contentkit', 'seo', 'heading' );
+	}
+
+	/**
+	 * Get style dependencies.
+	 *
+	 * @return array
+	 */
+	public function get_style_depends() {
+		return array( 'wpck-toc-frontend' );
+	}
+
+	/**
+	 * Get script dependencies.
+	 *
+	 * @return array
+	 */
+	public function get_script_depends() {
+		return array( 'wpck-toc-frontend' );
 	}
 
 	/**

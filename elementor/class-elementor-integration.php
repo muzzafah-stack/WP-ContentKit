@@ -1,6 +1,7 @@
 <?php
 /**
  * Elementor Integration Loader.
+ * Lightweight & native element registration (ProElements style).
  *
  * @package WP_ContentKit
  */
@@ -39,34 +40,15 @@ class Elementor_Integration {
 	 * Constructor.
 	 */
 	private function __construct() {
-		add_action( 'elementor/elements/categories_registered', array( $this, 'register_widget_category' ) );
-		
 		if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.5.0', '>=' ) ) {
 			add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ) );
 		} else {
 			add_action( 'elementor/widgets/widgets_registered', array( $this, 'register_widgets_legacy' ) );
 		}
-
-		add_action( 'elementor/editor/after_enqueue_scripts', array( $this, 'enqueue_editor_assets' ) );
 	}
 
 	/**
-	 * Register WP ContentKit category in Elementor.
-	 *
-	 * @param \Elementor\Elements_Manager $elements_manager Elements manager.
-	 */
-	public function register_widget_category( $elements_manager ) {
-		$elements_manager->add_category(
-			'wp-contentkit',
-			array(
-				'title' => __( 'WP ContentKit', 'wp-contentkit' ),
-				'icon'  => 'fa fa-plug',
-			)
-		);
-	}
-
-	/**
-	 * Register Elementor widgets (Elementor >= 3.5.0).
+	 * Register Elementor widget (Elementor >= 3.5.0).
 	 *
 	 * @param \Elementor\Widgets_Manager $widgets_manager Widgets manager.
 	 */
@@ -76,25 +58,12 @@ class Elementor_Integration {
 	}
 
 	/**
-	 * Register Elementor widgets legacy (Elementor < 3.5.0).
+	 * Register Elementor widget legacy (Elementor < 3.5.0).
 	 *
 	 * @param \Elementor\Widgets_Manager $widgets_manager Widgets manager.
 	 */
 	public function register_widgets_legacy( $widgets_manager ) {
 		require_once WP_CONTENTKIT_PATH . 'elementor/widgets/class-toc-widget.php';
 		$widgets_manager->register_widget_type( new Widgets\TOC_Widget() );
-	}
-
-	/**
-	 * Enqueue editor-specific assets for live validation feedback.
-	 */
-	public function enqueue_editor_assets() {
-		wp_enqueue_script(
-			'wpck-elementor-validator',
-			WP_CONTENTKIT_URL . 'assets/js/elementor-editor-validator.js',
-			array( 'jquery' ),
-			WP_CONTENTKIT_VERSION,
-			true
-		);
 	}
 }
