@@ -40,7 +40,13 @@ class Elementor_Integration {
 	 */
 	private function __construct() {
 		add_action( 'elementor/elements/categories_registered', array( $this, 'register_widget_category' ) );
-		add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ) );
+		
+		if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.5.0', '>=' ) ) {
+			add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ) );
+		} else {
+			add_action( 'elementor/widgets/widgets_registered', array( $this, 'register_widgets_legacy' ) );
+		}
+
 		add_action( 'elementor/editor/after_enqueue_scripts', array( $this, 'enqueue_editor_assets' ) );
 	}
 
@@ -60,13 +66,23 @@ class Elementor_Integration {
 	}
 
 	/**
-	 * Register Elementor widgets.
+	 * Register Elementor widgets (Elementor >= 3.5.0).
 	 *
 	 * @param \Elementor\Widgets_Manager $widgets_manager Widgets manager.
 	 */
 	public function register_widgets( $widgets_manager ) {
 		require_once WP_CONTENTKIT_PATH . 'elementor/widgets/class-toc-widget.php';
 		$widgets_manager->register( new Widgets\TOC_Widget() );
+	}
+
+	/**
+	 * Register Elementor widgets legacy (Elementor < 3.5.0).
+	 *
+	 * @param \Elementor\Widgets_Manager $widgets_manager Widgets manager.
+	 */
+	public function register_widgets_legacy( $widgets_manager ) {
+		require_once WP_CONTENTKIT_PATH . 'elementor/widgets/class-toc-widget.php';
+		$widgets_manager->register_widget_type( new Widgets\TOC_Widget() );
 	}
 
 	/**

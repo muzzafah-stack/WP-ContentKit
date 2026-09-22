@@ -103,6 +103,14 @@ class Classic_Editor {
 			return;
 		}
 
+		// Do not load on Elementor editor screen to prevent script collisions.
+		if ( isset( $_GET['action'] ) && 'elementor' === $_GET['action'] ) {
+			return;
+		}
+		if ( isset( $_GET['page'] ) && strpos( $_GET['page'], 'elementor' ) !== false ) {
+			return;
+		}
+
 		wp_enqueue_style(
 			'wpck-classic-editor-modal',
 			WP_CONTENTKIT_URL . 'assets/css/classic-editor-modal.css',
@@ -145,6 +153,11 @@ class Classic_Editor {
 	public function render_modal_container() {
 		$screen = get_current_screen();
 		if ( ! $screen || ! in_array( $screen->base, array( 'post' ), true ) ) {
+			return;
+		}
+
+		// Skip on Elementor editor.
+		if ( isset( $_GET['action'] ) && 'elementor' === $_GET['action'] ) {
 			return;
 		}
 
