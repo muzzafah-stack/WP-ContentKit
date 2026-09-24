@@ -1,6 +1,43 @@
 /**
- * WP ContentKit - Classic Editor Modal CSS
+ * WP ContentKit - Classic Editor Modal & Button CSS
  */
+
+/* Media Button in Classic Editor Toolbar (Next to Add Media) */
+.wpck-media-button {
+	margin-right: 5px !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 4px !important;
+	font-weight: 500 !important;
+	color: #1e293b !important;
+	border-color: #cbd5e1 !important;
+	background: #ffffff !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.wpck-media-button:hover,
+.wpck-media-button:focus {
+	border-color: #2563eb !important;
+	color: #2563eb !important;
+	background: #f8fafc !important;
+}
+
+.wpck-media-icon {
+	font-size: 16px !important;
+	width: 16px !important;
+	height: 16px !important;
+	line-height: 16px !important;
+	color: #2563eb;
+}
+
+/* TinyMCE Button Icon */
+.mce-i-wpck-box-icon:before {
+	content: "\f535";
+	font-family: dashicons;
+	font-size: 18px;
+	line-height: 20px;
+	color: #2563eb;
+}
 
 /* Modal Backdrop */
 .wpck-modal-backdrop {
@@ -10,38 +47,38 @@
 	right: 0;
 	bottom: 0;
 	background: rgba(15, 23, 42, 0.65);
-	backdrop-filter: blur(3px);
+	backdrop-filter: blur(4px);
 	z-index: 100050;
 	display: none;
 	align-items: center;
 	justify-content: center;
-	padding: 20px;
+	padding: 24px;
 	box-sizing: border-box;
 }
 
 .wpck-modal-backdrop.wpck-open {
-	display: flex;
+	display: flex !important;
 }
 
 /* Modal Window */
 .wpck-modal-window {
 	background: #ffffff;
-	border-radius: 12px;
-	width: 1000px;
+	border-radius: 14px;
+	width: 1050px;
 	max-width: 96vw;
 	max-height: 90vh;
-	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-	animation: wpckModalFadeIn 0.2s ease-out;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	animation: wpckModalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes wpckModalFadeIn {
 	from {
 		opacity: 0;
-		transform: scale(0.97) translateY(10px);
+		transform: scale(0.96) translateY(12px);
 	}
 	to {
 		opacity: 1;
@@ -52,7 +89,7 @@
 /* Header */
 .wpck-modal-header {
 	padding: 16px 24px;
-	background: #0f172a;
+	background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 	color: #ffffff;
 	display: flex;
 	align-items: center;
@@ -73,22 +110,22 @@
 	background: transparent;
 	border: none;
 	color: #94a3b8;
-	font-size: 22px;
+	font-size: 24px;
 	line-height: 1;
 	cursor: pointer;
 	padding: 4px 8px;
-	border-radius: 4px;
+	border-radius: 6px;
 	transition: all 0.2s;
 }
 
 .wpck-modal-close-btn:hover {
 	color: #ffffff;
-	background: rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.12);
 }
 
 /* Template Selector Tabs */
 .wpck-template-selector {
-	padding: 12px 24px;
+	padding: 12px 20px;
 	background: #f8fafc;
 	border-bottom: 1px solid #e2e8f0;
 	display: flex;
@@ -116,22 +153,22 @@
 .wpck-template-chip:hover {
 	background: #f1f5f9;
 	border-color: #94a3b8;
-	color: #1e293b;
+	color: #0f172a;
 }
 
 .wpck-template-chip.active {
 	background: #2563eb;
 	border-color: #2563eb;
 	color: #ffffff;
-	box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+	box-shadow: 0 2px 5px rgba(37, 99, 235, 0.25);
 }
 
 /* Main Modal Body (2 Columns) */
 .wpck-modal-body {
 	display: flex;
 	flex: 1;
-	min-height: 380px;
-	max-height: calc(90vh - 140px);
+	min-height: 400px;
+	max-height: calc(90vh - 150px);
 	overflow: hidden;
 }
 
@@ -140,12 +177,25 @@
 	padding: 20px 24px;
 	overflow-y: auto;
 	border-right: 1px solid #e2e8f0;
+	background: #ffffff;
+}
+
+.wpck-column-heading {
+	font-size: 13px;
+	font-weight: 700;
+	text-transform: uppercase;
+	color: #64748b;
+	letter-spacing: 0.5px;
+	margin-bottom: 16px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 
 .wpck-modal-preview-column {
 	flex: 1.2;
 	padding: 20px 24px;
-	background: #fafafa;
+	background: #f8fafc;
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
@@ -168,17 +218,18 @@
 .wpck-form-textarea,
 .wpck-form-select {
 	width: 100%;
-	padding: 7px 10px;
+	padding: 8px 12px;
 	border: 1px solid #cbd5e1;
 	border-radius: 6px;
 	font-size: 13.5px;
 	color: #1e293b;
 	box-sizing: border-box;
 	background: #ffffff;
+	transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .wpck-form-textarea {
-	min-height: 80px;
+	min-height: 85px;
 	resize: vertical;
 	font-family: inherit;
 	line-height: 1.5;
@@ -189,35 +240,58 @@
 .wpck-form-select:focus {
 	border-color: #2563eb;
 	outline: none;
-	box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+	box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
 }
 
-.wpck-form-grid-2 {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 12px;
+/* Color picker wrapper fixes */
+.wpck-modal-fields-column .wp-picker-container {
+	display: block;
 }
 
-/* Live Preview Box */
+/* Preview Header & Tabs */
 .wpck-preview-header {
-	font-size: 13px;
-	font-weight: 700;
-	text-transform: uppercase;
-	color: #64748b;
-	letter-spacing: 0.5px;
-	margin-bottom: 12px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.wpck-preview-view-toggles {
+	display: flex;
+	gap: 4px;
+	background: #e2e8f0;
+	padding: 3px;
+	border-radius: 6px;
+}
+
+.wpck-preview-toggle {
+	background: transparent;
+	border: none;
+	padding: 4px 10px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #475569;
+	border-radius: 4px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	transition: all 0.15s ease;
+}
+
+.wpck-preview-toggle.active {
+	background: #ffffff;
+	color: #0f172a;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .wpck-preview-badge {
 	font-size: 11px;
-	background: #e2e8f0;
-	color: #475569;
-	padding: 2px 6px;
+	background: #e0f2fe;
+	color: #0369a1;
+	padding: 3px 8px;
 	border-radius: 4px;
-	text-transform: none;
+	font-weight: 600;
 }
 
 .wpck-preview-viewport {
@@ -227,7 +301,31 @@
 	padding: 16px;
 	flex: 1;
 	overflow-y: auto;
-	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+	box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.wpck-code-viewport {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.wpck-code-textarea {
+	width: 100%;
+	flex: 1;
+	min-height: 250px;
+	font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+	font-size: 12.5px;
+	line-height: 1.55;
+	color: #0f172a;
+	background: #ffffff;
+	border: 1px solid #cbd5e1;
+	border-radius: 8px;
+	padding: 14px;
+	box-sizing: border-box;
+	resize: none;
+	white-space: pre-wrap;
+	word-break: break-all;
 }
 
 /* Footer */
@@ -238,6 +336,27 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+}
+
+.wpck-footer-left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.wpck-footer-right {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.wpck-copy-feedback {
+	font-size: 12.5px;
+	font-weight: 600;
+	color: #16a34a;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 }
 
 .wpck-btn {
@@ -273,13 +392,14 @@
 }
 
 .wpck-btn-copy {
-	background: transparent;
+	background: #ffffff;
 	border-color: #cbd5e1;
-	color: #475569;
-	font-size: 12px;
-	padding: 6px 12px;
+	color: #334155;
+	font-size: 13px;
+	padding: 7px 14px;
 }
 .wpck-btn-copy:hover {
 	background: #f8fafc;
+	border-color: #94a3b8;
 	color: #0f172a;
 }

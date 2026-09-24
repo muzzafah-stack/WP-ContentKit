@@ -20,13 +20,41 @@ class Classic_Editor {
 	 * Constructor.
 	 */
 	public function __construct() {
+		$options = Admin_Settings::get_options();
+		if ( empty( $options['enable_content_box'] ) || '1' !== $options['enable_content_box'] ) {
+			return;
+		}
+
+		// Editor toolbar & media buttons hooks.
+		add_action( 'media_buttons', array( $this, 'render_media_button' ), 20 );
 		add_action( 'admin_init', array( $this, 'register_tinymce_button' ) );
 		add_action( 'admin_print_footer_scripts', array( $this, 'register_quicktags_button' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_editor_assets' ) );
 		add_action( 'admin_footer', array( $this, 'render_modal_container' ) );
+	}
 
-		// AJAX preview/render endpoint.
-		add_action( 'wp_ajax_wpck_render_box_preview', array( $this, 'ajax_render_box_preview' ) );
+	/**
+	 * Register button next to "Add Media" (Media Buttons bar).
+	 * Most visible and reliable button position for Classic Editor.
+	 *
+	 * @param string $editor_id ID of the editor instance (usually 'content').
+	 */
+	public function render_media_button( $editor_id = 'content' ) {
+		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+
+		// Skip on Elementor editor.
+		if ( isset( $_GET['action'] ) && 'elementor' === $_GET['action'] ) {
+			return;
+		}
+
+		?>
+		<button type="button" class="button wpck-media-button wpck-open-modal-btn" data-editor="<?php echo esc_attr( $editor_id ); ?>" title="<?php esc_attr_e( 'Insert Inline Content Box (WP ContentKit)', 'wp-contentkit' ); ?>">
+			<span class="dashicons dashicons-editor-kitchensink wpck-media-icon"></span>
+			<?php esc_html_e( 'Content Box', 'wp-contentkit' ); ?>
+		</button>
+		<?php
 	}
 
 	/**
@@ -50,7 +78,7 @@ class Classic_Editor {
 	 * @return array
 	 */
 	public function add_tinymce_plugin( $plugins ) {
-		$plugins['wpck_box'] = WP_CONTENTKIT_URL . 'assets/js/classic-editor-modal.js';
+		$plugins['wpck_box'] = WP_CONTENTKIT_URL . 'assets/js/tinymce-plugin.js';
 		return $plugins;
 	}
 
@@ -111,10 +139,12 @@ class Classic_Editor {
 			return;
 		}
 
+		wp_enqueue_style( 'wp-color-picker' );
+
 		wp_enqueue_style(
 			'wpck-classic-editor-modal',
 			WP_CONTENTKIT_URL . 'assets/css/classic-editor-modal.css',
-			array( 'dashicons' ),
+			array( 'dashicons', 'wp-color-picker' ),
 			WP_CONTENTKIT_VERSION
 		);
 
@@ -125,8 +155,6 @@ class Classic_Editor {
 			WP_CONTENTKIT_VERSION,
 			true
 		);
-
-		wp_enqueue_style( 'wp-color-picker' );
 
 		wp_localize_script(
 			'wpck-classic-editor-modal',
@@ -140,7 +168,7 @@ class Classic_Editor {
 					'insertButton' => __( 'Insert Box ke Editor', 'wp-contentkit' ),
 					'close'        => __( 'Tutup', 'wp-contentkit' ),
 					'preview'      => __( 'Live Preview', 'wp-contentkit' ),
-					'copied'       => __( 'HTML berhasil disalin!', 'wp-contentkit' ),
+					'copied'       => __( 'HTML Berhasil Disalin!', 'wp-contentkit' ),
 					'generating'   => __( 'Membuat tampilan box...', 'wp-contentkit' ),
 				),
 			)
@@ -152,7 +180,7 @@ class Classic_Editor {
 	 */
 	public function render_modal_container() {
 		$screen = get_current_screen();
-		if ( ! $screen || ! in_array( $screen->base, array( 'post' ), true ) ) {
+		if ( ! $screen || ! in_array( $screen->base, array( 'post', 'edit' ), true ) ) {
 			return;
 		}
 
@@ -163,30 +191,5 @@ class Classic_Editor {
 
 		$templates = Content_Box_Templates::get_templates();
 		include WP_CONTENTKIT_PATH . 'templates/classic-editor-modal.php';
-	}
-
-	/**
-	 * AJAX endpoint to compile HTML from submitted form data.
-	 */
-	public function ajax_render_box_preview() {
-		check_ajax_referer( 'wpck_box_nonce', 'nonce' );
-
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Unauthorized user.', 'wp-contentkit' ) ) );
-		}
-
-		$template_id = isset( $_POST['template'] ) ? sanitize_key( $_POST['template'] ) : 'important';
-		$fields_raw  = isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ? wp_unslash( $_POST['fields'] ) : array();
-
-		$data = array();
-		foreach ( $fields_raw as $k => $v ) {
-			$data[ sanitize_key( $k ) ] = sanitize_textarea_field( $v );
-		}
-
-		$html = Content_Box_Templates::render_inline_html( $template_id, $data );
-
-		wp_send_json_success( array(
-			'html' => $html,
-		) );
 	}
 }

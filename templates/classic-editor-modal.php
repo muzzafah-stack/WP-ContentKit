@@ -36,31 +36,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="wpck-modal-body">
 			<!-- Left: Form Fields -->
 			<div class="wpck-modal-fields-column">
+				<div class="wpck-column-heading">
+					<span class="dashicons dashicons-edit"></span>
+					<?php esc_html_e( 'Sesuaikan Konten Box', 'wp-contentkit' ); ?>
+				</div>
 				<div id="wpck-modal-fields">
 					<!-- Dynamically injected fields via classic-editor-modal.js -->
 				</div>
 			</div>
 
-			<!-- Right: Live Preview -->
+			<!-- Right: Live Preview & HTML Code Output -->
 			<div class="wpck-modal-preview-column">
 				<div class="wpck-preview-header">
-					<span><?php esc_html_e( 'Live Preview', 'wp-contentkit' ); ?></span>
-					<span class="wpck-preview-badge"><?php esc_html_e( 'Pure Inline CSS', 'wp-contentkit' ); ?></span>
+					<div class="wpck-preview-view-toggles">
+						<button type="button" class="wpck-preview-toggle active" data-view="visual">
+							<span class="dashicons dashicons-visibility"></span> <?php esc_html_e( 'Visual Preview', 'wp-contentkit' ); ?>
+						</button>
+						<button type="button" class="wpck-preview-toggle" data-view="code">
+							<span class="dashicons dashicons-editor-code"></span> <?php esc_html_e( 'Kode HTML', 'wp-contentkit' ); ?>
+						</button>
+					</div>
+					<span class="wpck-preview-badge"><?php esc_html_e( '100% Inline CSS', 'wp-contentkit' ); ?></span>
 				</div>
+
+				<!-- Visual Viewport -->
 				<div id="wpck-preview-viewport" class="wpck-preview-viewport">
 					<!-- Live preview rendered here -->
+				</div>
+
+				<!-- Code Viewport -->
+				<div id="wpck-code-viewport" class="wpck-code-viewport" style="display: none;">
+					<textarea id="wpck-generated-html" class="wpck-code-textarea" readonly spellcheck="false"></textarea>
 				</div>
 			</div>
 		</div>
 
 		<!-- Modal Footer -->
 		<div class="wpck-modal-footer">
-			<div>
+			<div class="wpck-footer-left">
 				<button type="button" id="wpck-btn-copy" class="wpck-btn wpck-btn-copy">
 					<span class="dashicons dashicons-clipboard"></span> <?php esc_html_e( 'Salin Kode HTML', 'wp-contentkit' ); ?>
 				</button>
+				<span id="wpck-copy-feedback" class="wpck-copy-feedback" style="display: none;">
+					<span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'Tersalin ke Clipboard!', 'wp-contentkit' ); ?>
+				</span>
 			</div>
-			<div style="display: flex; gap: 8px;">
+			<div class="wpck-footer-right">
 				<button type="button" id="wpck-btn-cancel" class="wpck-btn wpck-btn-cancel">
 					<?php esc_html_e( 'Batal', 'wp-contentkit' ); ?>
 				</button>

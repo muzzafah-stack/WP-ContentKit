@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				WP ContentKit <span class="badge">v<?php echo esc_html( WP_CONTENTKIT_VERSION ); ?></span>
 			</h1>
 			<p class="wpck-header-tagline">
-				<?php esc_html_e( 'Smart Tools for Better Content. Lightweight SSR TOC & Inline Content Box Utility.', 'wp-contentkit' ); ?>
+				<?php esc_html_e( 'Smart Tools for Better Content. Lightweight SSR TOC & Inline Content Box Generator.', 'wp-contentkit' ); ?>
 			</p>
 		</div>
 		<div class="wpck-header-author">
@@ -41,11 +41,125 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<span class="dashicons dashicons-list-view"></span> <?php esc_html_e( 'Smart TOC', 'wp-contentkit' ); ?>
 		</button>
 		<button type="button" class="wpck-tab-btn" data-tab="tab-content-box">
-			<span class="dashicons dashicons-editor-kitchensink"></span> <?php esc_html_e( 'Content Box', 'wp-contentkit' ); ?>
+			<span class="dashicons dashicons-editor-kitchensink"></span> <?php esc_html_e( 'Content Box Generator', 'wp-contentkit' ); ?>
 		</button>
 		<button type="button" class="wpck-tab-btn" data-tab="tab-performance">
 			<span class="dashicons dashicons-performance"></span> <?php esc_html_e( 'Performance & Status', 'wp-contentkit' ); ?>
 		</button>
+	</div>
+
+	<!-- ================= TAB: CONTENT BOX GENERATOR (INTERACTIVE STUDIO) ================= -->
+	<div class="wpck-tab-panel" id="tab-content-box">
+		<div class="wpck-card">
+			<div class="wpck-generator-intro">
+				<h3 class="wpck-card-title" style="margin-bottom: 6px;">
+					<span class="dashicons dashicons-editor-kitchensink" style="color: #2563eb;"></span>
+					<?php esc_html_e( 'Interactive Content Box HTML Generator', 'wp-contentkit' ); ?>
+				</h3>
+				<p style="color: #475569; font-size: 13.5px; line-height: 1.5; margin: 0 0 16px 0;">
+					<?php esc_html_e( 'Pilih template siap pakai di bawah ini, sesuaikan isi & warnanya secara live, lalu salin kode HTML-nya langsung untuk ditempel ke Classic Editor, Elementor (HTML Widget), Gutenberg (Custom HTML), maupun platform lainnya.', 'wp-contentkit' ); ?>
+				</p>
+			</div>
+
+			<!-- Template Selector Chips -->
+			<div class="wpck-template-selector" style="border-radius: 8px; margin-bottom: 20px;">
+				<?php foreach ( $templates as $tpl_id => $tpl ) : ?>
+					<button type="button" class="wpck-template-chip <?php echo 'important' === $tpl_id ? 'active' : ''; ?>" data-template="<?php echo esc_attr( $tpl_id ); ?>">
+						<span class="dashicons <?php echo esc_attr( $tpl['icon'] ); ?>"></span>
+						<?php echo esc_html( $tpl['title'] ); ?>
+					</button>
+				<?php endforeach; ?>
+			</div>
+
+			<!-- 2-Column Generator Workspace -->
+			<div class="wpck-generator-grid">
+				<!-- Left: Dynamic Form Fields -->
+				<div class="wpck-generator-col wpck-generator-fields">
+					<h4 class="wpck-col-title">
+						<span class="dashicons dashicons-admin-settings"></span>
+						<?php esc_html_e( 'Sesuaikan Parameter Template', 'wp-contentkit' ); ?>
+					</h4>
+					<div id="wpck-modal-fields" class="wpck-fields-container">
+						<!-- Dynamically populated by classic-editor-modal.js -->
+					</div>
+				</div>
+
+				<!-- Right: Live Preview & HTML Output -->
+				<div class="wpck-generator-col wpck-generator-output">
+					<div class="wpck-preview-header" style="margin-bottom: 12px;">
+						<div class="wpck-preview-view-toggles">
+							<button type="button" class="wpck-preview-toggle active" data-view="visual">
+								<span class="dashicons dashicons-visibility"></span> <?php esc_html_e( 'Visual Preview', 'wp-contentkit' ); ?>
+							</button>
+							<button type="button" class="wpck-preview-toggle" data-view="code">
+								<span class="dashicons dashicons-editor-code"></span> <?php esc_html_e( 'Kode HTML', 'wp-contentkit' ); ?>
+							</button>
+						</div>
+						<span class="wpck-preview-badge"><?php esc_html_e( '100% Inline CSS', 'wp-contentkit' ); ?></span>
+					</div>
+
+					<!-- Visual Viewport -->
+					<div id="wpck-preview-viewport" class="wpck-preview-viewport" style="min-height: 280px;">
+						<!-- Live Preview Rendered Here -->
+					</div>
+
+					<!-- Code Viewport -->
+					<div id="wpck-code-viewport" class="wpck-code-viewport" style="display: none; min-height: 280px;">
+						<textarea id="wpck-generated-html" class="wpck-code-textarea" readonly spellcheck="false"></textarea>
+					</div>
+
+					<!-- Action Buttons -->
+					<div class="wpck-generator-actions" style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between;">
+						<div style="display: flex; align-items: center; gap: 10px;">
+							<button type="button" id="wpck-btn-copy" class="button button-primary wpck-btn-primary-action">
+								<span class="dashicons dashicons-clipboard"></span> <?php esc_html_e( 'Salin Kode HTML', 'wp-contentkit' ); ?>
+							</button>
+							<span id="wpck-copy-feedback" class="wpck-copy-feedback" style="display: none;">
+								<span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'Berhasil Disalin ke Clipboard!', 'wp-contentkit' ); ?>
+							</span>
+						</div>
+						<div style="font-size: 12px; color: #64748b;">
+							<?php esc_html_e( 'Mandiri & Bebas Dependency', 'wp-contentkit' ); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Usage Guide Box -->
+			<div class="wpck-usage-guide" style="margin-top: 28px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+				<h4 style="margin: 0 0 12px 0; font-size: 14px; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+					<span class="dashicons dashicons-book-alt" style="color: #2563eb;"></span>
+					<?php esc_html_e( 'Panduan Cara Menggunakan Content Box di Berbagai Editor', 'wp-contentkit' ); ?>
+				</h4>
+				<div class="wpck-guide-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+					<div class="wpck-guide-item">
+						<strong style="color: #1e293b; font-size: 13px; display: block; margin-bottom: 4px;">1. Classic Editor (WordPress Classic Editor)</strong>
+						<p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.5;">
+							Klik tombol <strong>"Content Box"</strong> di atas editor (di sebelah tombol <em>Tambah Media / Add Media</em>) atau klik ikon kotak pada toolbar TinyMCE. Pilih template lalu klik <strong>"Insert Box ke Editor"</strong>.
+						</p>
+					</div>
+					<div class="wpck-guide-item">
+						<strong style="color: #1e293b; font-size: 13px; display: block; margin-bottom: 4px;">2. Elementor Editor</strong>
+						<p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.5;">
+							Klik <strong>"Salin Kode HTML"</strong> dari generator di atas, lalu tambahkan widget <strong>HTML</strong> atau <strong>Text Editor</strong> di Elementor dan tempelkan kodenya.
+						</p>
+					</div>
+					<div class="wpck-guide-item">
+						<strong style="color: #1e293b; font-size: 13px; display: block; margin-bottom: 4px;">3. Gutenberg / Block Editor</strong>
+						<p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.5;">
+							Tambahkan blok <strong>Custom HTML</strong> di Gutenberg dan tempelkan kode yang telah disalin.
+						</p>
+					</div>
+					<div class="wpck-guide-item">
+						<strong style="color: #1e293b; font-size: 13px; display: block; margin-bottom: 4px;">4. Email Newsletter & External CMS</strong>
+						<p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.5;">
+							Karena menggunakan 100% Inline CSS murni, kotak template ini kompatibel dengan Gmail, Mailchimp, email newsletter, dan website apapun tanpa CSS eksternal.
+						</p>
+					</div>
+				</div>
+			</div>
+
+		</div>
 	</div>
 
 	<form method="post" action="options.php">
@@ -81,7 +195,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<?php esc_html_e( 'Aktifkan tombol generator Content Box di Classic Editor', 'wp-contentkit' ); ?>
 						</label>
 						<p class="wpck-field-desc">
-							<?php esc_html_e( 'Menambahkan tombol "Content Box" pada TinyMCE & Text Editor dengan 7 template bawaan + Custom Box.', 'wp-contentkit' ); ?>
+							<?php esc_html_e( 'Menambahkan tombol "Content Box" di samping Add Media, TinyMCE, dan Text Editor.', 'wp-contentkit' ); ?>
 						</p>
 					</div>
 				</div>
@@ -212,59 +326,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 		</div>
 
-		<!-- ================= TAB: CONTENT BOX ================= -->
-		<div class="wpck-tab-panel" id="tab-content-box">
-			<div class="wpck-card">
-				<h3 class="wpck-card-title"><?php esc_html_e( 'Daftar Template Content Box Siap Pakai', 'wp-contentkit' ); ?></h3>
-				<p style="color: #475569; font-size: 13.5px; line-height: 1.5; margin-bottom: 20px;">
-					<?php esc_html_e( 'Setiap template dirancang khusus menghasilkan tag HTML dengan atribut style (Inline CSS) murni, sehingga 100% mandiri, tidak memerlukan stylesheet eksternal, dan aman dipindahkan antar dokumen.', 'wp-contentkit' ); ?>
-				</p>
-
-				<div class="wpck-status-grid">
-					<div class="wpck-status-box">
-						<h4>1. Poin Penting</h4>
-						<div class="val" style="font-size: 14px; font-weight: 600; color: #2563eb;">Border Kiri Biru Tebal</div>
-						<p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Bullet points terstruktur untuk kesimpulan cepat.</p>
-					</div>
-					<div class="wpck-status-box">
-						<h4>2. Author Box</h4>
-						<div class="val" style="font-size: 14px; font-weight: 600; color: #0f172a;">Profil Penulis Lengkap</div>
-						<p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Avatar, nama, role, bio, dan link portofolio.</p>
-					</div>
-					<div class="wpck-status-box">
-						<h4>3. Reviewed By</h4>
-						<div class="val" style="font-size: 14px; font-weight: 600; color: #475569;">E-E-A-T Verifikasi</div>
-						<p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Kotak peninjauan ahli bersertifikasi.</p>
-					</div>
-					<div class="wpck-status-box">
-						<h4>4. Related Content</h4>
-						<div class="val" style="font-size: 14px; font-weight: 600; color: #1e3a8a;">Baca Juga</div>
-						<p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Badge rekomendasi artikel terkait di tengah konten.</p>
-					</div>
-					<div class="wpck-status-box">
-						<h4>5. Note / Catatan</h4>
-						<div class="val" style="font-size: 14px; font-weight: 600; color: #d97706;">Aksen Hangat</div>
-						<p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Informasi tips atau catatan tambahan.</p>
-					</div>
-					<div class="wpck-status-box">
-						<h4>6. Warning</h4>
-						<div class="val" style="font-size: 14px; font-weight: 600; color: #dc2626;">Aksen Waspada</div>
-						<p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Disclaimer atau peringatan penting.</p>
-					</div>
-					<div class="wpck-status-box">
-						<h4>7. Simple Info</h4>
-						<div class="val" style="font-size: 14px; font-weight: 600; color: #16a34a;">Nuansa Segar</div>
-						<p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Kotak info minimalis bergaris hijau halus.</p>
-					</div>
-					<div class="wpck-status-box">
-						<h4>8. Custom Box</h4>
-						<div class="val" style="font-size: 14px; font-weight: 600; color: #7c3aed;">Kustom Bebas</div>
-						<p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Atur warna, border style, radius, & padding sesuka hati.</p>
-					</div>
-				</div>
-			</div>
-		</div>
-
 		<!-- ================= TAB: PERFORMANCE & STATUS ================= -->
 		<div class="wpck-tab-panel" id="tab-performance">
 			<div class="wpck-card">
@@ -285,37 +346,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</div>
 				</div>
 
-				<h4 style="margin: 24px 0 10px 0; font-size: 15px; color: #0f172a;"><?php esc_html_e( 'Status Arsitektur Plugin', 'wp-contentkit' ); ?></h4>
+				<h4 style="margin: 24px 0 10px 0; font-size: 15px; color: #0f172a;"><?php esc_html_e( 'Status Arsitektur Plugin & Kompatibilitas', 'wp-contentkit' ); ?></h4>
 
 				<div class="wpck-status-grid">
 					<div class="wpck-status-box">
-						<h4>Rendering Method</h4>
-						<div class="val" style="color: #16a34a;">100% Server-Side (SSR)</div>
-						<p style="font-size: 11.5px; color: #64748b; margin: 4px 0 0 0;">TOC langsung tersedia di HTML pertama tanpa loading spinner.</p>
-					</div>
-					<div class="wpck-status-box">
-						<h4>Cache Plugin Safety</h4>
-						<div class="val" style="color: #2563eb;">Delay/Defer JS Safe</div>
-						<p style="font-size: 11.5px; color: #64748b; margin: 4px 0 0 0;">Perfmatters, FlyingPress, WP Rocket, LiteSpeed, Cloudflare.</p>
-					</div>
-					<div class="wpck-status-box">
-						<h4>Frontend JS Dependency</h4>
-						<div class="val" style="color: #0f172a;">Zero (Vanilla JS &lt; 2KB)</div>
-						<p style="font-size: 11.5px; color: #64748b; margin: 4px 0 0 0;">Tanpa jQuery di frontend. Navigasi tetap bekerja jika JS dimatikan.</p>
+						<h4>WordPress Target</h4>
+						<div class="val" style="color: #16a34a;">WP 7.1.2 & 6.x Ready</div>
+						<p style="font-size: 11.5px; color: #64748b; margin: 4px 0 0 0;">PHP 7.4 - 8.3+ Clean Architecture.</p>
 					</div>
 					<div class="wpck-status-box">
 						<h4>Elementor Status</h4>
 						<div class="val" style="color: <?php echo did_action( 'elementor/loaded' ) ? '#16a34a' : '#94a3b8'; ?>;">
-							<?php echo did_action( 'elementor/loaded' ) ? esc_html__( 'Elementor Aktif', 'wp-contentkit' ) : esc_html__( 'Elementor Tidak Terdeteksi', 'wp-contentkit' ); ?>
+							<?php echo did_action( 'elementor/loaded' ) ? ( defined( 'ELEMENTOR_VERSION' ) ? 'Elementor v' . esc_html( ELEMENTOR_VERSION ) : 'Elementor Aktif' ) : esc_html__( 'Elementor Tidak Terdeteksi', 'wp-contentkit' ); ?>
 						</div>
-						<p style="font-size: 11.5px; color: #64748b; margin: 4px 0 0 0;">Widget Smart TOC terintegrasi.</p>
+						<p style="font-size: 11.5px; color: #64748b; margin: 4px 0 0 0;">Kompatibel Elementor 4.3.1 & 3.5+.</p>
+					</div>
+					<div class="wpck-status-box">
+						<h4>Rendering Method</h4>
+						<div class="val" style="color: #16a34a;">100% Server-Side (SSR)</div>
+						<p style="font-size: 11.5px; color: #64748b; margin: 4px 0 0 0;">TOC langsung di HTML tanpa delay/spinner.</p>
+					</div>
+					<div class="wpck-status-box">
+						<h4>Cache Plugin Safety</h4>
+						<div class="val" style="color: #2563eb;">Delay/Defer JS Safe</div>
+						<p style="font-size: 11.5px; color: #64748b; margin: 4px 0 0 0;">WP Rocket, LiteSpeed, Cloudflare, FlyingPress.</p>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Submit Button -->
-		<div class="wpck-submit-wrap">
+		<!-- Submit Button (Hidden on Generator Tab, shown on Settings tabs) -->
+		<div class="wpck-submit-wrap" id="wpck-settings-submit-wrap">
 			<?php submit_button( __( 'Simpan Perubahan', 'wp-contentkit' ), 'primary wpck-btn-primary', 'submit', false ); ?>
 		</div>
 	</form>
@@ -326,6 +387,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 document.addEventListener('DOMContentLoaded', function() {
 	var tabs = document.querySelectorAll('.wpck-tab-btn');
 	var panels = document.querySelectorAll('.wpck-tab-panel');
+	var submitWrap = document.getElementById('wpck-settings-submit-wrap');
 
 	tabs.forEach(function(tab) {
 		tab.addEventListener('click', function() {
@@ -338,6 +400,15 @@ document.addEventListener('DOMContentLoaded', function() {
 			var activePanel = document.getElementById(target);
 			if (activePanel) {
 				activePanel.classList.add('active');
+			}
+
+			if (target === 'tab-content-box') {
+				if (submitWrap) submitWrap.style.display = 'none';
+				if (window.WPCK_Modal) {
+					window.WPCK_Modal.updatePreview();
+				}
+			} else {
+				if (submitWrap) submitWrap.style.display = 'block';
 			}
 		});
 	});

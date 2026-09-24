@@ -59,7 +59,7 @@ class TOC_Widget extends Widget_Base {
 	 * @return array
 	 */
 	public function get_categories() {
-		return array( 'general', 'theme-elements-single' );
+		return array( 'wpck-category', 'general', 'theme-elements-single' );
 	}
 
 	/**

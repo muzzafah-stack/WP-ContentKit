@@ -1,14 +1,9 @@
 /**
- * WP ContentKit - Classic Editor Modal & TinyMCE Plugin
+ * WP ContentKit - Classic Editor Modal & Inline HTML Generator
  */
 
 (function ($) {
 	'use strict';
-
-	if (window.WPCK_Modal_Initialized) {
-		return;
-	}
-	window.WPCK_Modal_Initialized = true;
 
 	var templatesData = (window.wpckModalData && window.wpckModalData.templates) ? window.wpckModalData.templates : {};
 	var i18n = (window.wpckModalData && window.wpckModalData.i18n) ? window.wpckModalData.i18n : {};
@@ -16,6 +11,8 @@
 	var WPCK_Modal = {
 		currentTemplate: 'important',
 		currentFormData: {},
+		activeEditor: null,
+		currentView: 'visual', // 'visual' or 'code'
 
 		init: function () {
 			this.cacheElements();
@@ -28,22 +25,41 @@
 			this.$chips = $('.wpck-template-chip');
 			this.$fieldsContainer = $('#wpck-modal-fields');
 			this.$previewViewport = $('#wpck-preview-viewport');
+			this.$codeViewport = $('#wpck-code-viewport');
+			this.$codeTextarea = $('#wpck-generated-html');
+			this.$viewToggles = $('.wpck-preview-toggle');
 			this.$btnInsert = $('#wpck-btn-insert');
 			this.$btnCopy = $('#wpck-btn-copy');
+			this.$copyFeedback = $('#wpck-copy-feedback');
 			this.$btnClose = $('.wpck-modal-close-btn, #wpck-btn-cancel');
 		},
 
 		bindEvents: function () {
 			var self = this;
 
-			// Chip click
-			this.$chips.on('click', function () {
+			// Open modal via media button or any button with .wpck-open-modal-btn
+			$(document).on('click', '.wpck-open-modal-btn', function (e) {
+				e.preventDefault();
+				self.open();
+			});
+
+			// Chip click (Template selector)
+			$(document).on('click', '.wpck-template-chip', function (e) {
+				e.preventDefault();
 				var templateId = $(this).data('template');
 				self.selectTemplate(templateId);
 			});
 
+			// View Toggle (Visual / Code)
+			$(document).on('click', '.wpck-preview-toggle', function (e) {
+				e.preventDefault();
+				var view = $(this).data('view');
+				self.switchView(view);
+			});
+
 			// Close modal
-			this.$btnClose.on('click', function () {
+			this.$btnClose.on('click', function (e) {
+				e.preventDefault();
 				self.close();
 			});
 
@@ -53,31 +69,51 @@
 				}
 			});
 
-			// ESC key
+			// ESC key to close
 			$(document).on('keydown', function (e) {
 				if (e.keyCode === 27 && self.$backdrop.hasClass('wpck-open')) {
 					self.close();
 				}
 			});
 
-			// Insert button
-			this.$btnInsert.on('click', function () {
+			// Insert into editor button
+			this.$btnInsert.on('click', function (e) {
+				e.preventDefault();
 				self.insertIntoEditor();
 			});
 
 			// Copy HTML button
-			this.$btnCopy.on('click', function () {
+			this.$btnCopy.on('click', function (e) {
+				e.preventDefault();
 				self.copyHtml();
 			});
 		},
 
-		open: function () {
-			this.$backdrop.addClass('wpck-open');
+		open: function (editor) {
+			if (editor) {
+				this.activeEditor = editor;
+			}
+			this.$backdrop.addClass('wpck-open').show();
 			this.updatePreview();
 		},
 
 		close: function () {
-			this.$backdrop.removeClass('wpck-open');
+			this.$backdrop.removeClass('wpck-open').hide();
+		},
+
+		switchView: function (view) {
+			this.currentView = view;
+			this.$viewToggles.removeClass('active');
+			this.$viewToggles.filter('[data-view="' + view + '"]').addClass('active');
+
+			if (view === 'code') {
+				this.$previewViewport.hide();
+				this.$codeViewport.show();
+				this.updateCodeView();
+			} else {
+				this.$codeViewport.hide();
+				this.$previewViewport.show();
+			}
 		},
 
 		selectTemplate: function (templateId) {
@@ -96,6 +132,9 @@
 		renderFields: function (templateId) {
 			var self = this;
 			var template = templatesData[templateId];
+			if (!template) {
+				return;
+			}
 			var fields = template.fields || {};
 			var html = '';
 
@@ -128,7 +167,7 @@
 
 			this.$fieldsContainer.html(html);
 
-			// Init Color Pickers
+			// Init WordPress Color Pickers if available
 			this.$fieldsContainer.find('.wpck-color-field').each(function () {
 				var $input = $(this);
 				if ($.fn.wpColorPicker) {
@@ -147,7 +186,7 @@
 				}
 			});
 
-			// Input listeners
+			// Input change listeners
 			this.$fieldsContainer.find('.wpck-field-input').on('input change', function () {
 				var key = $(this).data('key');
 				self.currentFormData[key] = $(this).val();
@@ -157,7 +196,7 @@
 
 		generateInlineHtml: function () {
 			var tpl = this.currentTemplate;
-			var d = this.currentFormData;
+			var d = this.currentFormData || {};
 
 			switch (tpl) {
 				case 'important':
@@ -176,9 +215,9 @@
 						listHtml += '</ul>';
 					}
 
-					return '<div style="background: ' + escapeHtml(bg) + '; border-left: 4px solid ' + escapeHtml(border) + '; padding: 18px 20px; border-radius: 8px; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">' +
-						'<div style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">' + escapeHtml(title) + '</div>' +
-						listHtml +
+					return '<div style="background: ' + escapeHtml(bg) + '; border-left: 4px solid ' + escapeHtml(border) + '; padding: 18px 20px; border-radius: 8px; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">\n' +
+						'  <div style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">' + escapeHtml(title) + '</div>\n' +
+						'  ' + listHtml + '\n' +
 					'</div>';
 
 				case 'author':
@@ -201,16 +240,16 @@
 						linkHtml = '<p style="margin: 10px 0 0 0; font-size: 14px;"><a href="' + escapeHtml(linkUrl) + '" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline; font-weight: 600;">' + escapeHtml(linkText) + ' &rarr;</a></p>';
 					}
 
-					return '<div style="background: ' + escapeHtml(aBg) + '; border: 1px solid ' + escapeHtml(aBorder) + '; padding: 22px; border-radius: 12px; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">' +
-						'<div style="display: flex; align-items: center; flex-wrap: wrap;">' +
-							avatarHtml +
-							'<div style="flex: 1; min-width: 200px;">' +
-								'<h4 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #0f172a;">' + escapeHtml(name) + '</h4>' +
-								(role ? '<div style="font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 8px;">' + escapeHtml(role) + '</div>' : '') +
-								(bio ? '<p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.55;">' + escapeHtml(bio) + '</p>' : '') +
-								linkHtml +
-							'</div>' +
-						'</div>' +
+					return '<div style="background: ' + escapeHtml(aBg) + '; border: 1px solid ' + escapeHtml(aBorder) + '; padding: 22px; border-radius: 12px; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">\n' +
+						'  <div style="display: flex; align-items: center; flex-wrap: wrap;">\n' +
+						(avatarHtml ? '    ' + avatarHtml + '\n' : '') +
+						'    <div style="flex: 1; min-width: 200px;">\n' +
+						'      <h4 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #0f172a;">' + escapeHtml(name) + '</h4>\n' +
+						(role ? '      <div style="font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 8px;">' + escapeHtml(role) + '</div>\n' : '') +
+						(bio ? '      <p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.55;">' + escapeHtml(bio) + '</p>\n' : '') +
+						(linkHtml ? '      ' + linkHtml + '\n' : '') +
+						'    </div>\n' +
+						'  </div>\n' +
 					'</div>';
 
 				case 'reviewed_by':
@@ -228,11 +267,11 @@
 						rLinkHtml = '<p style="margin: 12px 0 0 0; font-size: 14px; color: #475569;">Lihat profil lengkap: <a href="' + escapeHtml(rLinkUrl) + '" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: 600; text-decoration: underline;">' + escapeHtml(disp) + '</a></p>';
 					}
 
-					return '<div style="border: 2px dashed ' + escapeHtml(rBorder) + '; padding: 20px; border-radius: 12px; background: ' + escapeHtml(rBg) + '; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">' +
-						'<h4 style="margin: 0 0 4px 0; font-size: 17px; font-weight: 700; color: #1e293b;">Ditinjau Oleh: ' + escapeHtml(revName) + '</h4>' +
-						(profession ? '<strong style="font-size: 13px; color: #475569; display: block; margin-bottom: 8px;">' + escapeHtml(profession) + '</strong>' : '') +
-						(desc ? '<p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.6;">' + escapeHtml(desc) + '</p>' : '') +
-						rLinkHtml +
+					return '<div style="border: 2px dashed ' + escapeHtml(rBorder) + '; padding: 20px; border-radius: 12px; background: ' + escapeHtml(rBg) + '; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">\n' +
+						'  <h4 style="margin: 0 0 4px 0; font-size: 17px; font-weight: 700; color: #1e293b;">Ditinjau Oleh: ' + escapeHtml(revName) + '</h4>\n' +
+						(profession ? '  <strong style="font-size: 13px; color: #475569; display: block; margin-bottom: 8px;">' + escapeHtml(profession) + '</strong>\n' : '') +
+						(desc ? '  <p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.6;">' + escapeHtml(desc) + '</p>\n' : '') +
+						(rLinkHtml ? '  ' + rLinkHtml + '\n' : '') +
 					'</div>';
 
 				case 'related_content':
@@ -242,9 +281,9 @@
 					var relBg = d.bg_color || '#eff6ff';
 					var relBorder = d.border_color || '#bfdbfe';
 
-					return '<div style="background: ' + escapeHtml(relBg) + '; border: 1px solid ' + escapeHtml(relBorder) + '; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box; display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px;">' +
-						'<span style="background: #2563eb; color: #ffffff; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">' + escapeHtml(badge) + '</span>' +
-						'<a href="' + escapeHtml(artUrl) + '" style="color: #1e3a8a; font-size: 15px; font-weight: 600; text-decoration: underline; line-height: 1.4;">' + escapeHtml(artTitle) + '</a>' +
+					return '<div style="background: ' + escapeHtml(relBg) + '; border: 1px solid ' + escapeHtml(relBorder) + '; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box; display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px;">\n' +
+						'  <span style="background: #2563eb; color: #ffffff; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">' + escapeHtml(badge) + '</span>\n' +
+						'  <a href="' + escapeHtml(artUrl) + '" style="color: #1e3a8a; font-size: 15px; font-weight: 600; text-decoration: underline; line-height: 1.4;">' + escapeHtml(artTitle) + '</a>\n' +
 					'</div>';
 
 				case 'note':
@@ -253,9 +292,9 @@
 					var nBg = d.bg_color || '#fffbeb';
 					var nBorder = d.border_color || '#f59e0b';
 
-					return '<div style="background: ' + escapeHtml(nBg) + '; border-left: 4px solid ' + escapeHtml(nBorder) + '; padding: 16px 18px; border-radius: 6px; margin: 20px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">' +
-						'<div style="font-weight: 700; color: #92400e; font-size: 15px; margin-bottom: 4px;">' + escapeHtml(noteTitle) + '</div>' +
-						'<div style="color: #78350f; font-size: 14px; line-height: 1.6;">' + escapeHtml(noteContent) + '</div>' +
+					return '<div style="background: ' + escapeHtml(nBg) + '; border-left: 4px solid ' + escapeHtml(nBorder) + '; padding: 16px 18px; border-radius: 6px; margin: 20px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">\n' +
+						'  <div style="font-weight: 700; color: #92400e; font-size: 15px; margin-bottom: 4px;">' + escapeHtml(noteTitle) + '</div>\n' +
+						'  <div style="color: #78350f; font-size: 14px; line-height: 1.6;">' + escapeHtml(noteContent) + '</div>\n' +
 					'</div>';
 
 				case 'warning':
@@ -264,9 +303,9 @@
 					var wBg = d.bg_color || '#fef2f2';
 					var wBorder = d.border_color || '#ef4444';
 
-					return '<div style="background: ' + escapeHtml(wBg) + '; border-left: 4px solid ' + escapeHtml(wBorder) + '; padding: 16px 18px; border-radius: 6px; margin: 20px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">' +
-						'<div style="font-weight: 700; color: #991b1b; font-size: 15px; margin-bottom: 4px;">' + escapeHtml(warnTitle) + '</div>' +
-						'<div style="color: #7f1d1d; font-size: 14px; line-height: 1.6;">' + escapeHtml(warnContent) + '</div>' +
+					return '<div style="background: ' + escapeHtml(wBg) + '; border-left: 4px solid ' + escapeHtml(wBorder) + '; padding: 16px 18px; border-radius: 6px; margin: 20px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">\n' +
+						'  <div style="font-weight: 700; color: #991b1b; font-size: 15px; margin-bottom: 4px;">' + escapeHtml(warnTitle) + '</div>\n' +
+						'  <div style="color: #7f1d1d; font-size: 14px; line-height: 1.6;">' + escapeHtml(warnContent) + '</div>\n' +
 					'</div>';
 
 				case 'simple_info':
@@ -275,9 +314,9 @@
 					var iBg = d.bg_color || '#f0fdf4';
 					var iBorder = d.border_color || '#bbf7d0';
 
-					return '<div style="background: ' + escapeHtml(iBg) + '; border: 1px solid ' + escapeHtml(iBorder) + '; padding: 16px 18px; border-radius: 8px; margin: 20px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">' +
-						'<div style="font-weight: 700; color: #166534; font-size: 15px; margin-bottom: 4px;">' + escapeHtml(infoTitle) + '</div>' +
-						'<div style="color: #14532d; font-size: 14px; line-height: 1.6;">' + escapeHtml(infoContent) + '</div>' +
+					return '<div style="background: ' + escapeHtml(iBg) + '; border: 1px solid ' + escapeHtml(iBorder) + '; padding: 16px 18px; border-radius: 8px; margin: 20px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">\n' +
+						'  <div style="font-weight: 700; color: #166534; font-size: 15px; margin-bottom: 4px;">' + escapeHtml(infoTitle) + '</div>\n' +
+						'  <div style="color: #14532d; font-size: 14px; line-height: 1.6;">' + escapeHtml(infoContent) + '</div>\n' +
 					'</div>';
 
 				case 'custom':
@@ -301,31 +340,54 @@
 
 					var cStyle = 'background: ' + escapeHtml(cBg) + '; color: ' + escapeHtml(cTextColor) + '; border: ' + cBorderWidth + 'px ' + escapeHtml(cBorderStyle) + ' ' + escapeHtml(cBorderColor) + '; border-radius: ' + cRadius + 'px; padding: ' + cPadding + 'px; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;';
 
-					return '<div style="' + cStyle + '">' +
-						(cTitle ? '<h4 style="margin: 0 0 8px 0; font-size: 17px; font-weight: 700; color: ' + escapeHtml(cTextColor) + ';">' + escapeHtml(cTitle) + '</h4>' : '') +
-						(cContent ? '<div style="font-size: 14px; line-height: 1.6;">' + cContent + '</div>' : '') +
-						cLinkHtml +
+					return '<div style="' + cStyle + '">\n' +
+						(cTitle ? '  <h4 style="margin: 0 0 8px 0; font-size: 17px; font-weight: 700; color: ' + escapeHtml(cTextColor) + ';">' + escapeHtml(cTitle) + '</h4>\n' : '') +
+						(cContent ? '  <div style="font-size: 14px; line-height: 1.6;">' + cContent + '</div>\n' : '') +
+						(cLinkHtml ? '  ' + cLinkHtml + '\n' : '') +
 					'</div>';
 			}
 		},
 
 		updatePreview: function () {
 			var html = this.generateInlineHtml();
-			this.$previewViewport.html(html);
+			if (this.$previewViewport.length) {
+				this.$previewViewport.html(html);
+			}
+			if (this.$codeTextarea.length) {
+				this.$codeTextarea.val(html);
+			}
+		},
+
+		updateCodeView: function () {
+			var html = this.generateInlineHtml();
+			if (this.$codeTextarea.length) {
+				this.$codeTextarea.val(html);
+			}
 		},
 
 		insertIntoEditor: function () {
 			var html = this.generateInlineHtml();
+			var inserted = false;
 
-			if (window.tinyMCE && window.tinyMCE.activeEditor && !window.tinyMCE.activeEditor.isHidden()) {
-				window.tinyMCE.activeEditor.execCommand('mceInsertContent', false, html);
+			// 1. Check passed editor or active TinyMCE
+			var editor = this.activeEditor || (window.tinyMCE ? window.tinyMCE.activeEditor : null);
+
+			if (editor && !editor.isHidden()) {
+				editor.execCommand('mceInsertContent', false, '\n' + html + '\n');
+				inserted = true;
 			} else {
-				// Text mode / textarea fallback
+				// 2. Text mode / textarea fallback
 				var $textarea = $('#content');
 				if ($textarea.length) {
-					var pos = $textarea.prop('selectionStart') || 0;
+					var el = $textarea.get(0);
+					var pos = el.selectionStart || 0;
+					var endPos = el.selectionEnd || pos;
 					var val = $textarea.val();
-					$textarea.val(val.substring(0, pos) + html + val.substring(pos));
+
+					$textarea.val(val.substring(0, pos) + '\n' + html + '\n' + val.substring(endPos));
+					el.selectionStart = el.selectionEnd = pos + html.length + 2;
+					$textarea.trigger('input').trigger('change');
+					inserted = true;
 				}
 			}
 
@@ -336,19 +398,48 @@
 			var html = this.generateInlineHtml();
 			var self = this;
 
-			if (navigator.clipboard) {
+			if (navigator.clipboard && navigator.clipboard.writeText) {
 				navigator.clipboard.writeText(html).then(function () {
-					var origText = self.$btnCopy.text();
-					self.$btnCopy.text(i18n.copied || 'Tersalin!');
-					setTimeout(function () {
-						self.$btnCopy.text(origText);
-					}, 2000);
+					self.showCopySuccess();
+				}).catch(function () {
+					self.fallbackCopy(html);
 				});
+			} else {
+				self.fallbackCopy(html);
 			}
+		},
+
+		fallbackCopy: function (text) {
+			var $temp = $('<textarea>');
+			$('body').append($temp);
+			$temp.val(text).select();
+			try {
+				document.execCommand('copy');
+				this.showCopySuccess();
+			} catch (err) {
+				// Failed
+			}
+			$temp.remove();
+		},
+
+		showCopySuccess: function () {
+			var self = this;
+			var origText = this.$btnCopy.html();
+
+			this.$copyFeedback.stop(true, true).fadeIn(200);
+			this.$btnCopy.html('<span class="dashicons dashicons-yes"></span> ' + (i18n.copied || 'Tersalin!'));
+
+			setTimeout(function () {
+				self.$copyFeedback.fadeOut(300);
+				self.$btnCopy.html(origText);
+			}, 2500);
 		}
 	};
 
 	function escapeHtml(string) {
+		if (typeof string !== 'string') {
+			string = String(string || '');
+		}
 		var entityMap = {
 			'&': '&amp;',
 			'<': '&lt;',
@@ -356,25 +447,12 @@
 			'"': '&quot;',
 			"'": '&#39;'
 		};
-		return String(string).replace(/[&<>"']/g, function (s) {
+		return string.replace(/[&<>"']/g, function (s) {
 			return entityMap[s];
 		});
 	}
 
 	window.WPCK_Modal = WPCK_Modal;
-
-	// TinyMCE Plugin Registration
-	if (typeof tinymce !== 'undefined') {
-		tinymce.PluginManager.add('wpck_box', function (editor) {
-			editor.addButton('wpck_box', {
-				title: 'Insert Content Box (WP ContentKit)',
-				icon: 'wpck-box-icon dashicons-before dashicons-editor-kitchensink',
-				onclick: function () {
-					WPCK_Modal.open();
-				}
-			});
-		});
-	}
 
 	$(document).ready(function () {
 		WPCK_Modal.init();

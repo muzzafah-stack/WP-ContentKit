@@ -1,7 +1,7 @@
 <?php
 /**
  * Elementor Integration Loader.
- * Lightweight & native element registration (ProElements style).
+ * Compatible with Elementor 4.3.1, 3.5.0+, and legacy Elementor.
  *
  * @package WP_ContentKit
  */
@@ -40,6 +40,8 @@ class Elementor_Integration {
 	 * Constructor.
 	 */
 	private function __construct() {
+		add_action( 'elementor/elements/categories_registered', array( $this, 'register_widget_category' ) );
+
 		if ( defined( 'ELEMENTOR_VERSION' ) && version_compare( ELEMENTOR_VERSION, '3.5.0', '>=' ) ) {
 			add_action( 'elementor/widgets/register', array( $this, 'register_widgets' ) );
 		} else {
@@ -48,7 +50,22 @@ class Elementor_Integration {
 	}
 
 	/**
-	 * Register Elementor widget (Elementor >= 3.5.0).
+	 * Register custom Elementor category for WP ContentKit.
+	 *
+	 * @param \Elementor\Elements_Manager $elements_manager Elements manager.
+	 */
+	public function register_widget_category( $elements_manager ) {
+		$elements_manager->add_category(
+			'wpck-category',
+			array(
+				'title' => esc_html__( 'WP ContentKit', 'wp-contentkit' ),
+				'icon'  => 'fa fa-plug',
+			)
+		);
+	}
+
+	/**
+	 * Register Elementor widget (Elementor >= 3.5.0 and Elementor 4.x).
 	 *
 	 * @param \Elementor\Widgets_Manager $widgets_manager Widgets manager.
 	 */

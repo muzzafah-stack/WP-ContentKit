@@ -3,8 +3,9 @@
  * Plugin Name:       WP ContentKit
  * Plugin URI:        https://github.com/muzzafah-stack
  * Description:       Smart Tools for Better Content. Lightweight Server-Side TOC for Elementor and portable Inline Content Box generator for Classic Editor.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 5.8
+ * Tested up to:      7.1.2
  * Requires PHP:      7.4
  * Author:            Hipnolink Team Digital
  * Author URI:        https://www.hipnolink.com
@@ -21,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin Constants.
-define( 'WP_CONTENTKIT_VERSION', '1.0.0' );
+define( 'WP_CONTENTKIT_VERSION', '1.1.0' );
 define( 'WP_CONTENTKIT_FILE', __FILE__ );
 define( 'WP_CONTENTKIT_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_CONTENTKIT_URL', plugin_dir_url( __FILE__ ) );

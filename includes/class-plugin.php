@@ -38,13 +38,6 @@ class Plugin {
 	public $classic_editor;
 
 	/**
-	 * Cached headings for current request.
-	 *
-	 * @var array
-	 */
-	private $current_post_headings = array();
-
-	/**
 	 * Get singleton instance.
 	 *
 	 * @return Plugin
@@ -67,8 +60,10 @@ class Plugin {
 	 * Initialize plugin hooks and subsystems.
 	 */
 	private function init_hooks() {
-		// Internationalization.
-		add_action( 'init', array( 'WP_ContentKit\\I18n', 'load_textdomain' ) );
+		// Internationalization inline.
+		add_action( 'init', function() {
+			load_plugin_textdomain( 'wp-contentkit', false, dirname( WP_CONTENTKIT_BASENAME ) . '/languages/' );
+		} );
 
 		// Subsystems.
 		if ( is_admin() ) {
@@ -123,37 +118,7 @@ class Plugin {
 		) );
 
 		$headings = array();
-		$modified_content = $parser->inject_anchors( $content, $headings );
-
-		$this->current_post_headings = $headings;
-
-		return $modified_content;
-	}
-
-	/**
-	 * Get parsed headings for post or content string.
-	 *
-	 * @param string $content Optional content string. If omitted, uses current post.
-	 * @param array  $custom_config Custom parser configuration.
-	 * @return array Parsed headings list.
-	 */
-	public function get_post_headings( $content = '', $custom_config = array() ) {
-		if ( empty( $content ) ) {
-			global $post;
-			if ( $post && ! empty( $post->post_content ) ) {
-				$content = $post->post_content;
-			}
-		}
-
-		$options = Admin_Settings::get_options();
-		$config  = wp_parse_args( $custom_config, array(
-			'allowed_levels' => $options['default_heading_levels'],
-			'min_headings'   => $options['min_headings_count'],
-			'id_prefix'      => $options['toc_id_prefix'],
-		) );
-
-		$parser = new TOC_Parser( $config );
-		return $parser->extract_headings( $content );
+		return $parser->inject_anchors( $content, $headings );
 	}
 
 	/**

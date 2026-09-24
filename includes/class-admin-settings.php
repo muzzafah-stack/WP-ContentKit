@@ -137,7 +137,7 @@ class Admin_Settings {
 	}
 
 	/**
-	 * Enqueue stylesheet on plugin settings page.
+	 * Enqueue stylesheet and generator script on plugin settings page.
 	 *
 	 * @param string $hook Screen hook.
 	 */
@@ -146,11 +146,39 @@ class Admin_Settings {
 			return;
 		}
 
+		wp_enqueue_style( 'wp-color-picker' );
+
 		wp_enqueue_style(
 			'wpck-admin-settings',
 			WP_CONTENTKIT_URL . 'assets/css/admin-settings.css',
-			array(),
+			array( 'wp-color-picker', 'dashicons' ),
 			WP_CONTENTKIT_VERSION
+		);
+
+		wp_enqueue_script(
+			'wpck-admin-settings-js',
+			WP_CONTENTKIT_URL . 'assets/js/classic-editor-modal.js',
+			array( 'jquery', 'wp-color-picker' ),
+			WP_CONTENTKIT_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'wpck-admin-settings-js',
+			'wpckModalData',
+			array(
+				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+				'nonce'     => wp_create_nonce( 'wpck_box_nonce' ),
+				'templates' => Content_Box_Templates::get_templates(),
+				'i18n'      => array(
+					'modalTitle'   => __( 'Content Box Generator — WP ContentKit', 'wp-contentkit' ),
+					'insertButton' => __( 'Insert Box ke Editor', 'wp-contentkit' ),
+					'close'        => __( 'Tutup', 'wp-contentkit' ),
+					'preview'      => __( 'Live Preview', 'wp-contentkit' ),
+					'copied'       => __( 'HTML Berhasil Disalin!', 'wp-contentkit' ),
+					'generating'   => __( 'Membuat tampilan box...', 'wp-contentkit' ),
+				),
+			)
 		);
 	}
 
@@ -162,7 +190,8 @@ class Admin_Settings {
 			return;
 		}
 
-		$options = self::get_options();
+		$options   = self::get_options();
+		$templates = Content_Box_Templates::get_templates();
 		include WP_CONTENTKIT_PATH . 'templates/admin-settings-page.php';
 	}
 }
