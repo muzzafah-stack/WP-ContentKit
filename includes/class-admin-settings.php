@@ -56,7 +56,7 @@ class Admin_Settings {
 			'enable_content_box'      => '1',
 			'default_heading_levels'  => array( 'h2', 'h3', 'h4' ),
 			'min_headings_count'      => 2,
-			'toc_default_title'       => __( 'Daftar Isi', 'wp-contentkit' ),
+			'toc_default_title'       => 'Daftar Isi',
 			'toc_numbering'           => 'decimal', // none, decimal, nested
 			'toc_collapsible'         => '1',
 			'toc_default_state'       => 'expanded', // expanded, collapsed
@@ -110,7 +110,7 @@ class Admin_Settings {
 		}
 
 		$output['min_headings_count'] = isset( $input['min_headings_count'] ) ? max( 1, (int) $input['min_headings_count'] ) : 2;
-		$output['toc_default_title']  = ! empty( $input['toc_default_title'] ) ? sanitize_text_field( $input['toc_default_title'] ) : __( 'Daftar Isi', 'wp-contentkit' );
+		$output['toc_default_title']  = ! empty( $input['toc_default_title'] ) ? sanitize_text_field( $input['toc_default_title'] ) : 'Daftar Isi';
 		
 		$allowed_numbering            = array( 'none', 'decimal', 'nested' );
 		$output['toc_numbering']      = ( isset( $input['toc_numbering'] ) && in_array( $input['toc_numbering'], $allowed_numbering, true ) ) ? $input['toc_numbering'] : 'decimal';
