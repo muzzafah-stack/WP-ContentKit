@@ -102,7 +102,7 @@ class Plugin {
 	 */
 	public function filter_content_anchors( $content ) {
 		// Only run on singular post/pages or in main query loop to prevent overhead in widgets/excerpts.
-		if ( is_feed() || empty( $content ) ) {
+		if ( ! is_string( $content ) || is_feed() || empty( $content ) ) {
 			return $content;
 		}
 

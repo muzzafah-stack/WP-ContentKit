@@ -507,7 +507,7 @@ class TOC_Widget extends Widget_Base {
 	 */
 	protected function render() {
 		$settings = $this->get_settings_for_display();
-		$is_editor = \Elementor\Plugin::$instance->editor->is_edit_mode();
+		$is_editor = isset( \Elementor\Plugin::$instance->editor ) && is_object( \Elementor\Plugin::$instance->editor ) && \Elementor\Plugin::$instance->editor->is_edit_mode();
 
 		// Fetch post content.
 		global $post;
