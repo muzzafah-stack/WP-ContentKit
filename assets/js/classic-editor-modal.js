@@ -221,12 +221,12 @@
 					'</div>';
 
 				case 'author':
-					var name = d.name || 'Nama Penulis';
-					var role = d.role || '';
-					var bio = d.bio || '';
-					var avatarUrl = d.avatar_url || '';
-					var linkText = d.link_text || '';
-					var linkUrl = d.link_url || '';
+					var name = (d.name || '').trim() || 'Nama Penulis';
+					var role = (d.role || '').trim();
+					var bio = (d.bio || '').trim();
+					var avatarUrl = (d.avatar_url || '').trim();
+					var linkText = (d.link_text || '').trim();
+					var linkUrl = (d.link_url || '').trim();
 					var aBg = d.bg_color || '#ffffff';
 					var aBorder = d.border_color || '#e2e8f0';
 
@@ -236,8 +236,9 @@
 					}
 
 					var linkHtml = '';
-					if (linkUrl && linkText) {
-						linkHtml = '<p style="margin: 10px 0 0 0; font-size: 14px;"><a href="' + escapeHtml(linkUrl) + '" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline; font-weight: 600;">' + escapeHtml(linkText) + ' &rarr;</a></p>';
+					if (linkUrl) {
+						var dispLink = linkText || 'Lihat Profil Lengkap';
+						linkHtml = '<p style="margin: 10px 0 0 0; font-size: 14px;"><a href="' + escapeHtml(linkUrl) + '" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline; font-weight: 600;">' + escapeHtml(dispLink) + ' &rarr;</a></p>';
 					}
 
 					return '<div style="background: ' + escapeHtml(aBg) + '; border: 1px solid ' + escapeHtml(aBorder) + '; padding: 22px; border-radius: 12px; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;">\n' +
@@ -253,17 +254,17 @@
 					'</div>';
 
 				case 'reviewed_by':
-					var revName = d.reviewer_name || 'Nama Reviewer';
-					var profession = d.profession || '';
-					var desc = d.description || '';
-					var rLinkText = d.link_text || '';
-					var rLinkUrl = d.link_url || '';
+					var revName = (d.reviewer_name || '').trim() || 'Nama Reviewer';
+					var profession = (d.profession || '').trim();
+					var desc = (d.description || '').trim();
+					var rLinkText = (d.link_text || '').trim();
+					var rLinkUrl = (d.link_url || '').trim();
 					var rBg = d.bg_color || '#fafafa';
 					var rBorder = d.border_color || '#888888';
 
 					var rLinkHtml = '';
 					if (rLinkUrl) {
-						var disp = rLinkText || rLinkUrl;
+						var disp = rLinkText || 'Lihat Profil Peninjau';
 						rLinkHtml = '<p style="margin: 12px 0 0 0; font-size: 14px; color: #475569;">Lihat profil lengkap: <a href="' + escapeHtml(rLinkUrl) + '" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: 600; text-decoration: underline;">' + escapeHtml(disp) + '</a></p>';
 					}
 
@@ -275,9 +276,12 @@
 					'</div>';
 
 				case 'related_content':
-					var badge = d.badge || 'Baca Juga:';
-					var artTitle = d.article_title || '';
-					var artUrl = d.article_url || '#';
+					var badge = (d.badge || '').trim() || 'Baca Juga:';
+					var artTitle = (d.article_title || '').trim();
+					var artUrl = (d.article_url || '').trim() || '#';
+					if (!artTitle) {
+						artTitle = (artUrl !== '#') ? artUrl : 'Baca Artikel Selengkapnya';
+					}
 					var relBg = d.bg_color || '#eff6ff';
 					var relBorder = d.border_color || '#bfdbfe';
 
@@ -323,8 +327,8 @@
 				default:
 					var cTitle = d.title || '';
 					var cContent = (d.content || '').replace(/\n/g, '<br>');
-					var cLinkUrl = d.link_url || '';
-					var cLinkText = d.link_text || cLinkUrl;
+					var cLinkUrl = (d.link_url || '').trim();
+					var cLinkText = (d.link_text || '').trim();
 					var cBg = d.bg_color || '#f8fafc';
 					var cTextColor = d.text_color || '#1e293b';
 					var cBorderColor = d.border_color || '#cbd5e1';
@@ -334,8 +338,9 @@
 					var cPadding = parseInt(d.padding, 10) || 20;
 
 					var cLinkHtml = '';
-					if (cLinkUrl && cLinkText) {
-						cLinkHtml = '<p style="margin: 12px 0 0 0; font-size: 14px;"><a href="' + escapeHtml(cLinkUrl) + '" target="_blank" rel="noopener noreferrer" style="color: ' + escapeHtml(cTextColor) + '; font-weight: 600; text-decoration: underline;">' + escapeHtml(cLinkText) + '</a></p>';
+					if (cLinkUrl) {
+						var cDisp = cLinkText || 'Pelajari Lebih Lanjut';
+						cLinkHtml = '<p style="margin: 12px 0 0 0; font-size: 14px;"><a href="' + escapeHtml(cLinkUrl) + '" target="_blank" rel="noopener noreferrer" style="color: ' + escapeHtml(cTextColor) + '; font-weight: 600; text-decoration: underline;">' + escapeHtml(cDisp) + '</a></p>';
 					}
 
 					var cStyle = 'background: ' + escapeHtml(cBg) + '; color: ' + escapeHtml(cTextColor) + '; border: ' + cBorderWidth + 'px ' + escapeHtml(cBorderStyle) + ' ' + escapeHtml(cBorderColor) + '; border-radius: ' + cRadius + 'px; padding: ' + cPadding + 'px; margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; box-sizing: border-box;';

@@ -202,8 +202,8 @@
 	border-radius: 8px;
 	display: flex;
 	gap: 8px;
-	overflow-x: auto;
-	scrollbar-width: thin;
+	flex-wrap: wrap;
+	align-items: center;
 }
 
 .wpck-template-chip {
@@ -219,6 +219,9 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
+	line-height: normal;
+	height: auto;
+	flex-shrink: 0;
 	transition: all 0.2s ease;
 }
 

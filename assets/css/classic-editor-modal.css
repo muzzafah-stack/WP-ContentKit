@@ -94,6 +94,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	flex-shrink: 0;
 }
 
 .wpck-modal-title {
@@ -130,8 +131,10 @@
 	border-bottom: 1px solid #e2e8f0;
 	display: flex;
 	gap: 8px;
-	overflow-x: auto;
-	scrollbar-width: thin;
+	flex-wrap: wrap;
+	align-items: center;
+	flex-shrink: 0;
+	z-index: 2;
 }
 
 .wpck-template-chip {
@@ -147,6 +150,9 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
+	line-height: normal;
+	height: auto;
+	flex-shrink: 0;
 	transition: all 0.2s ease;
 }
 
@@ -166,9 +172,8 @@
 /* Main Modal Body (2 Columns) */
 .wpck-modal-body {
 	display: flex;
-	flex: 1;
-	min-height: 400px;
-	max-height: calc(90vh - 150px);
+	flex: 1 1 auto;
+	min-height: 0;
 	overflow: hidden;
 }
 
@@ -336,6 +341,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	flex-shrink: 0;
 }
 
 .wpck-footer-left {
