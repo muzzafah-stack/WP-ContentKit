@@ -6,6 +6,45 @@
 (function () {
 	'use strict';
 
+	/**
+	 * Keep same-page TOC anchors as fragment-only URLs.
+	 *
+	 * Elementor or other frontend scripts may expose a fragment link as an
+	 * absolute URL (for example, https://example.com/article/#section).
+	 * Normalize only links that point to this document; external links are
+	 * intentionally left untouched.
+	 *
+	 * @param {Element} container TOC wrapper.
+	 */
+	function normalizeSamePageFragmentLinks(container) {
+		var links = container.querySelectorAll('.wpck-toc-list a[href]');
+
+		links.forEach(function (link) {
+			var href = link.getAttribute('href');
+
+			if (!href || href.charAt(0) === '#') {
+				return;
+			}
+
+			try {
+				var targetUrl = new URL(href, window.location.href);
+				var currentUrl = new URL(window.location.href);
+				var normalizePath = function (path) {
+					return path.length > 1 ? path.replace(/\/$/, '') : path;
+				};
+
+				var isSameDocument = targetUrl.origin === currentUrl.origin &&
+					normalizePath(targetUrl.pathname) === normalizePath(currentUrl.pathname);
+
+				if (isSameDocument && targetUrl.hash.length > 1) {
+					link.setAttribute('href', targetUrl.hash);
+				}
+			} catch (error) {
+				// Leave malformed or unsupported URLs unchanged.
+			}
+		});
+	}
+
 	function initWPContentKitTOC() {
 		var containers = document.querySelectorAll('.wpck-toc-container');
 		if (!containers.length) {
@@ -13,6 +52,9 @@
 		}
 
 		containers.forEach(function (container) {
+			// Enforce fragment-only href values before binding TOC behavior.
+			normalizeSamePageFragmentLinks(container);
+
 			var toggleBtn = container.querySelector('.wpck-toc-toggle-btn');
 			var body = container.querySelector('.wpck-toc-body');
 			var links = container.querySelectorAll('.wpck-toc-list a');
